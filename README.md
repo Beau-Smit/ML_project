@@ -4,11 +4,11 @@
 Precipitation / weather
 
 Elevation
-https://earthquake.usgs.gov/earthquakes/search/
 
 Vegetation
 
 Seismic activity
+https://earthquake.usgs.gov/earthquakes/search/
 
 preventative measures?
 
