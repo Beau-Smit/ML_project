@@ -29,6 +29,8 @@ https://daac.ornl.gov/cgi-bin/dataset_lister.pl?p=21
 
 https://gpm.nasa.gov/applications/landslides#modelingandreportinglandslides
 
+https://maps.nccs.nasa.gov/arcgis/apps/webappviewer/index.html?id=824ea5864ec8423fb985b33ee6bc05b7
+
 ### Other code
 https://github.com/vightel/ojo-bot/tree/master/python
 
