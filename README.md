@@ -14,6 +14,8 @@ https://openweathermap.org/api
 
 US: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
 
+US 1 meter: https://catalog.data.gov/dataset/1-meter-digital-elevation-models-dems-usgs-national-map-3dep-downloadable-data-collection
+
 Global: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
 
 ##### Vegetation
