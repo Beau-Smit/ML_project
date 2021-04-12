@@ -14,6 +14,8 @@ https://openweathermap.org/api
 
 US: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
 
+Global: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
+
 ##### Vegetation
 
 ##### Seismic activity
