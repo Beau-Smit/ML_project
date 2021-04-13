@@ -10,6 +10,8 @@ https://maps.nccs.nasa.gov/arcgis/apps/MapAndAppGallery/index.html?appid=574f264
 
 https://openweathermap.org/api
 
+https://psl.noaa.gov/data/gridded/data.gpcc.html
+
 ##### Elevation
 
 US: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
