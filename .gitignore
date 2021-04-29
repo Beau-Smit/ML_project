@@ -130,3 +130,6 @@ dmypy.json
 
 # Keys n such
 config.py
+
+# Temporarily keeping data out
+data/
