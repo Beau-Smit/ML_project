@@ -132,4 +132,5 @@ dmypy.json
 config.py
 
 # Temporarily keeping data out
-data/
+data/precip
+data/elevations
