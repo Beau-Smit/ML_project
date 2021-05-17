@@ -2,6 +2,21 @@
 
 ### Data
 
+<<<<<<< HEAD
+Landslides 
+https://maps.nccs.nasa.gov/arcgis/apps/MapAndAppGallery/index.html?appid=574f26408683485799d02e857e5d9521
+
+Precipitation / weather
+
+Elevation
+
+Vegetation
+
+Seismic activity
+https://earthquake.usgs.gov/earthquakes/search/
+
+preventative measures?
+=======
 ##### Landslides 
 
 https://maps.nccs.nasa.gov/arcgis/apps/MapAndAppGallery/index.html?appid=574f26408683485799d02e857e5d9521
@@ -27,6 +42,7 @@ Global: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
 https://earthquake.usgs.gov/earthquakes/search/
 
 ##### preventative measures?
+>>>>>>> 01718811be984b9614009771d0064108ee7132d6
 
 ### Literature
 https://www.sciencedirect.com/science/article/pii/S0013795220317737#:~:text=Landslide%20displacement%20prediction%20approaches%20can%20be%20categorized%20into,relationship%20between%20influencing%20factors%20and%20deformation%20is%20nonlinear
