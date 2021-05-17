@@ -1,0 +1,2 @@
+ContiguousUS_Wildfire_Most_Recent_Year_Burned.tif filter=lfs diff=lfs merge=lfs -text
+ContiguousUS_Wildfire_Count.tif filter=lfs diff=lfs merge=lfs -text

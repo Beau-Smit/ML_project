@@ -27,9 +27,12 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+<<<<<<< HEAD
 input/
 output/
 
+=======
+>>>>>>> 01718811be984b9614009771d0064108ee7132d6
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
@@ -130,3 +133,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+<<<<<<< HEAD
+=======
+
+*.DS_store
+
+# Keys n such
+config.py
+
+>>>>>>> 01718811be984b9614009771d0064108ee7132d6

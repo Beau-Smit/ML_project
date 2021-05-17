@@ -1,0 +1,685 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+  <idinfo>
+    <citation>
+      <citeinfo>
+        <origin>Justin L. Welty</origin>
+        <origin>Michelle I. Jeffries</origin>
+        <pubdate>2020</pubdate>
+        <title>Raster Count of Wildfires Burned, First Year Burned, and Most Recent Year Burned in the Contiguous United States, 1878-2019</title>
+        <edition>1.0.0</edition>
+        <geoform>raster digital data</geoform>
+        <onlink>https://doi.org/10.5066/P9Z2VVRT</onlink>
+        <lworkcit>
+          <citeinfo>
+            <origin>Justin L. Welty</origin>
+            <origin>Michelle I. Jeffries</origin>
+            <pubdate>2020</pubdate>
+            <title>Combined wildfire datasets for the United States and certain territories, 1878-2019</title>
+            <edition>1.0.0</edition>
+            <geoform>Rasters and Vector Files</geoform>
+            <onlink>https://doi.org/10.5066/P9Z2VVRT</onlink>
+          </citeinfo>
+        </lworkcit>
+      </citeinfo>
+    </citation>
+    <descript>
+      <abstract>Currently, there are multiple, freely available fire datasets that identify wildfire and burned areas across the United States. However, these datasets are all limited in some way. Time periods, spatial extents, attributes, and maintenance for these datasets are highly variable, and none of the existing datasets provide a comprehensive picture of wildfires that have burned throughout the last 142 years. Utilizing a series of both manual processes and ArcGIS Python (arcpy) scripts, we merged 12 of these disparate datasets into a single dataset that encompasses the known wildfires within the United States from 1878-2019. These datasets were ranked by order of observed quality, and overlapping polygons in the same year were used individually or dissolved together with other polygons based on ranked quality (see individual steps in the polygon metadata for full details). The fire polygons were turned into 30 meter rasters with the values representing area burned in each year (128 yearly rasters total as some years in the 1800s had no fires recorded). Three rasters were calculated from the yearly rasters: (a) their yearly values were turned to 1 and these values were summed to create a count of the number of times burned, (b) the first time a pixel burned was selected to create a first year burned raster, and (c) the last time a pixel burned was selected to create a first year burned raster. These calculations were done for the contiguous US, Alaska, and Hawaii separately in order to reduce file size and download time. Each of the zipped files contains the 3 rasters for one of the following  locations: contiguous US, Alaska, and Hawaii. This set of rasters is the Contiguous US dataset. While it is almost certain that wildfires burned in the Contiguous US before 1878, none of the fire datasets we utilized had fire information from before this time period.</abstract>
+      <purpose>The purpose of this dataset is to combine disparate wildfire datasets, using a common set of attributes, into a single set of polygons with a single fire boundary for each fire. This dataset is intended to create a more comprehensive fire dataset than the existing datasets while eliminating duplication of fire polygons and attributes.</purpose>
+      <supplinf>This data release includes the most up to date wildfire information through 2019. We anticipate, but cannot guarantee that this wildfire dataset will be updated yearly as new wildfire information becomes available.</supplinf>
+    </descript>
+    <timeperd>
+      <timeinfo>
+        <rngdates>
+          <begdate>1878</begdate>
+          <enddate>2019</enddate>
+        </rngdates>
+      </timeinfo>
+      <current>ground condition</current>
+    </timeperd>
+    <status>
+      <progress>In work</progress>
+      <update>Annually</update>
+    </status>
+    <spdom>
+      <descgeog>Contiguous United States</descgeog>
+      <bounding>
+        <westbc>-131.26227</westbc>
+        <eastbc>-63.02315</eastbc>
+        <northbc>52.36996</northbc>
+        <southbc>21.61839</southbc>
+      </bounding>
+    </spdom>
+    <keywords>
+      <theme>
+        <themekt>ISO 19115 Topic Category</themekt>
+        <themekey>environment</themekey>
+      </theme>
+      <theme>
+        <themekt>None</themekt>
+        <themekey>wildfire</themekey>
+        <themekey>fire</themekey>
+        <themekey>burned area</themekey>
+        <themekey>raster</themekey>
+        <themekey>number of times burned</themekey>
+        <themekey>first year burned</themekey>
+        <themekey>most recent year burned</themekey>
+      </theme>
+      <theme>
+        <themekt>USGS Thesaurus</themekt>
+        <themekey>fires</themekey>
+        <themekey>geospatial datasets</themekey>
+      </theme>
+      <place>
+        <placekt>Common geographic areas</placekt>
+        <placekey>North America</placekey>
+        <placekey>United States</placekey>
+      </place>
+    </keywords>
+    <accconst>Public domain data from the U.S. Government are freely redistributable with proper metadata and source attribution. The U.S. Geological Survey requests to be acknowledged as originator of these data in future products or derivative research. Please see 'Distribution Info' for details.</accconst>
+    <useconst>None.  Users need to read the dataset's metadata thoroughly to understand appropriate use and data limitations. If there are any concerns, errors, or omissions in regard to this dataset, users should contact the data authors to gain additional information or to fix any existing errors in the data.</useconst>
+    <ptcontac>
+      <cntinfo>
+        <cntperp>
+          <cntper>FRESC Science Data Coordinator</cntper>
+          <cntorg>U.S. Geological Survey, Forest and Rangeland Ecosystem Science Center</cntorg>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>777 NW 9th Street, Suite 400</address>
+          <city>Corvallis</city>
+          <state>OR</state>
+          <postal>97330</postal>
+          <country>United States of America</country>
+        </cntaddr>
+        <cntvoice>(541) 750-1030</cntvoice>
+        <cntemail>fresc_outreach@usgs.gov</cntemail>
+      </cntinfo>
+    </ptcontac>
+  </idinfo>
+  <dataqual>
+    <attracc>
+      <attraccr>These datasets were obtained from 12 different wildfire datasets, each with their own limitations in accuracy in both time and space. We are relying on the original dataset attributes for accuracy. We cannot know, for example, whether the fire occurred in the year stated in the attributes or whether it was a different year. Whether derived by satellite imagery, created through the use of GPS points, or hand drawn on a topographic map, no wildfire perimeter is 100% accurate. In addition, not all fires were reported, especially older fires;  thus one or two fires reported per year in the late 1800s almost certainly underestimates the actual number of fires. By merging and dissolving different polygons that represent the same fire together we wanted to create a single boundary for the wildfire. However, this dissolving process can result in the fire polygon with the least amount of detail contributing the most to the boundary of one fire. Instead of dissolving all fire polygons together regardless of dataset quality, our system broke the fires into 2 Tiers that were processed individually. Tier 1 contained polygons only from the Monitoring Trends in Burn Severity dataset. Tier 2 contained a combination of state and federal wildfire layers. Tier 3 contained polygons from the Land Treatment Digital Library. By processing this data set in a tiered fashion (1-3) we hoped to improve accuracy of the polygons as each subsequent tier had fire polygons that intersected in space and fire year from the previous tiers removed before being processed. The goal was to improve the accuracy of the wildfire polygon. Whether this worsens or improves the actual fire boundary is unknown, because, as we stated before, no fire polygon is 100% accurate to begin with. The raster boundaries should be assumed to be the approximate area burned. These rasters represent the first year burned, most recent year burned, and the count of wildfires based on the data in the dataset itself. It is impossible know how many fires were missed or mapped improperly.</attraccr>
+    </attracc>
+    <logic>This dataset was designed to eliminate duplicate wildfire boundaries. All internal checks suggest we have merged the fire data correctly. Year ranges fall within expected ranges as do wildfire dates. We cannot say with 100% confidence that all boundaries within this dataset are wildfires. We included fires where the fire type is unknown. This could introduce prescribed fires. Examples where prescribed fires are likely to have been introduced in high quantities include eastern Kansas as well as the southeast coast down into Florida. However, we decided to err on the side of inclusion rather than exclusion. Users will have to have knowledge of their local area when determining whether this dataset accurately represents the area burned in wildfires. Summary raster layers were checked to ensure that they match up to the polygon values to which they correspond. While we know the fire year of major fires is correct, there are thousands of smaller fires for which no record exists other than their inclusion in one of the original datasets. It is impossible for us to confirm all fire years in this dataset are accurate.</logic>
+    <complete>We did our best to remove all wildfires without a Year Burned attribute and any non-wildfire burned areas (prescribed fires). However, we are relatively confident that some prescribed fires made it into the dataset. While we do not know the exact number, it is likely a very small percentage based on the steps we took to remove prescribed fires. We assumed that an area of land could not burn more than once in the same year. While extremely rare, burning twice in one year has been known to occur. However, even if an area did burn twice in the same year, for our purposes, we counted this as one burn. We assumed any fires that burned in the same year within 1km of each other were the same fire. This may not always be the case. While we would not lose the fire boundary itself, the fire attributes of these neighboring fires will be merged in to one record. Both of these assumptions will lower the count of actual fires, but should not affect the acreage. We assumed that anything marked as "Unknown" for fire type in the initial datasets was a wildfire. However, certain unknown fires tend to occur in areas that are frequently burned in prescribed fires (eastern Kansas and the southeast coast). However, we cannot unilaterally decide that certain unknown fires are prescribed burns while other unknown fires are wildfires. We decided to err on the side of including these fires rather than excluding them as the area still burned even if it was a prescribed fire. We also identified other fire datasets such as the Western Fire Map (https://www.sciencebase.gov/catalog/item/544ab5aae4b03653c63f8a75) and the Western North America Fires Map (https://www.sciencebase.gov/catalog/item/542d837ae4b092f17defc66e) for possible inclusion in this dataset. These were previous publications to do what we are currently doing. We discovered these datasets intentionally contained hundreds of prescribed fire polygons and had thousands of wildfire polygons that had identical boundaries to our current dataset, but had fire years that were off by 1-3 years. After consulting with the original authors, it was determined that the best course of action was to exclude these layers from our current effort.</complete>
+    <posacc>
+      <horizpa>
+        <horizpar>The horizontal accuracy is based on the inputs used to calculate this merged dataset. No fire perimeter is 100% accurate, however, and the fire perimeters in this dataset represent the approximate locations of the burned area.  </horizpar>
+      </horizpa>
+      <vertacc>
+        <vertaccr>Not applicable</vertaccr>
+      </vertacc>
+    </posacc>
+    <lineage>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>BLM National Operations Center</origin>
+            <pubdate>20191211</pubdate>
+            <title>BLM National Fire Perimeters Polygon for the United States 1878-2019</title>
+            <edition>Version 2.2</edition>
+            <geoform>vector digital data</geoform>
+            <othercit>This feature class represents Bureau of Land Management fires collected and assembled from various BLM field offices.</othercit>
+            <onlink>https://gis.blm.gov/EGISDownload/LayerPackages/BLM_National_Fire_Perimeters.zip </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1878</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>BLM LDAP Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the BLM wildfire polygons in both space and year burned were erased from the BLM dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Oregon BLM</origin>
+            <pubdate>20200424</pubdate>
+            <title>BLM Oregon and Washington Wildfires 1900-2019</title>
+            <geoform>vector digital data</geoform>
+            <othercit>This feature class represents Bureau of Land Management fires collected and assembled from the Oregon state office that encompasses the states of Oregon and Washington.</othercit>
+            <onlink>https://navigator.blm.gov/data?id=ae8fe69ea1c7dfc7 </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1900</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>BLM Oregon Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the BLM OR wildfire polygons in both space and year burned were erased from the BLM OR dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>CAL FIRE</origin>
+            <pubdate>20190401</pubdate>
+            <title>California State Wildfires 1878-2018</title>
+            <geoform>vector digital data</geoform>
+            <othercit>CAL FIRE recognizes the various partners that have contributed to this dataset, including USDA Forest Service Region 5, USDI Bureau of Land Management, National Park Service, National Fish and Wildlife Service, and numerous local agencies.</othercit>
+            <onlink>https://frap.fire.ca.gov/mapping/gis-data/ </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1878</begdate>
+              <enddate>2018</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>California State Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the California wildfire polygons in both space and year burned were erased from the California dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>National Interagency Fire Center</origin>
+            <pubdate>20200130</pubdate>
+            <title>GeoMac Wildfires 2000-2019</title>
+            <geoform>vector digital data</geoform>
+            <othercit>From: https://geomac.usgs.gov/GeoMACTransition.shtml
+
+The wildfire community has assumed responsibility for providing wildfire information. The following outlines how each piece of information from GeoMAC has been transitioned.
+The www.geomac.gov mapping application has been replaced by the following mapping application: https://maps.nwcg.gov/sa/#/%3F/39.8212/-96.2709/4.
+Data available at https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/ is available at the following location: data-nifc.opendata.arcgis.com.
+The REST services available through https://wildfire.cr.usgs.gov/ArcGIS/rest/services are available at the following location: data-nifc.opendata.arcgis.com.
+Refer to the FAQ for more information NIFC FAQ May 2020</othercit>
+            <onlink>https://rmgsc.cr.usgs.gov/outgoing/GeoMAC/historic_fire_data/ </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>2000</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>GeoMac Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the California wildfire polygons in both space and year burned were erased from the California dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Welty, Justin L.</origin>
+            <origin>Jeffries, Michelle I.</origin>
+            <origin>Schueck, Linda S.</origin>
+            <origin>Zarriello, Thomas J.</origin>
+            <origin>Pilliod, David S.</origin>
+            <pubdate>20200519</pubdate>
+            <title>Land Treatment Digital Library Wildfire Boundaries 1942-2018</title>
+            <edition>2.0</edition>
+            <geoform>vector digital data</geoform>
+            <othercit>The LTDL is a treatments database. We used the Purpose field equal to wildfire on the project polygons to extract the wildfire polygons. from other Project boundary information.</othercit>
+            <onlink>https://doi.org/10.5066/P98OBOLS</onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1945</begdate>
+              <enddate>2018</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>LTDL Wildfires</srccitea>
+        <srccontr>Since the LTDL is not an official wildfire source we did not feel comfortable lumping it in with the Tier 2 wildfire layers. While the data is more comprehensive than many datasets, it is not an official source. Therefore we added it as the only Tier 3 polygon layer. Any MTBS or Tier 2 polygons that intersected the LTDL wildfire polygons in both space and year burned were erased from the LTDL dataset before it was added to the MTBS and Tier 2 combined wildfires.  </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Monitoring Trends in Burn Severity</origin>
+            <pubdate>20190829</pubdate>
+            <title>Monitoring Trends in Burn Severity Wildfires 1984-2017</title>
+            <geoform>vector digital data</geoform>
+            <onlink>https://www.mtbs.gov/direct-download </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1984</begdate>
+              <enddate>2017</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>MTBS Wildfires</srccitea>
+        <srccontr>MTBS was our primary, or "truth", dataset. We assumed all wildfires in this dataset were the most accurate and it was the first dataset uploaded to the combined dataset. No wildfires were erased from this dataset.</srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>US Forest Service</origin>
+            <pubdate>2018</pubdate>
+            <title>The Great Fire of 1910</title>
+            <geoform>vector digital data</geoform>
+            <othercit>The perimeter of this wildfire was digitized from a PDF by USGS Land Treatment Digital Library staff in 2018 for use in this wildfire dataset.</othercit>
+            <onlink>https://www.fs.usda.gov/Internet/FSE_DOCUMENTS/stelprdb5444731.pdf</onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <sngdate>
+              <caldate>1910</caldate>
+            </sngdate>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>The Great 1910 Fire</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the Great Fire of 1910 polygons in both space and year burned were erased from the Great Fire dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>US Forest Service</origin>
+            <pubdate>20190315</pubdate>
+            <title>US Forest Service RAVG Wildfire Perimeters 2013-2018</title>
+            <geoform>vector digital data</geoform>
+            <onlink>https://data.fs.usda.gov/geodata/edw/datasets.php?xmlKeyword=wildfire </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>2013</begdate>
+              <enddate>2018</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>USFS RAVG Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the RAVG wildfire polygons in both space and year burned were erased from the RAVG dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>U.S. Forest Service, Southwestern Region, Regional GIS Coordinator</origin>
+            <pubdate>20200406</pubdate>
+            <title>US Forest Service Southwest Region (R3) Wildfires 1908-2019</title>
+            <geoform>vector digital data</geoform>
+            <onlink>https://www.fs.usda.gov/detail/r3/landmanagement/gis/?cid=stelprdb5201889 </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1908</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>USFS SW Region Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the USFS SW Region wildfire polygons in both space and year burned were erased from the USFS SW Region dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Carly E Gibson</origin>
+            <pubdate>20030601</pubdate>
+            <title>US Forest Service Northern Rockies Wildfires 1889-2003</title>
+            <geoform>vector digital data</geoform>
+            <onlink>https://www.fs.usda.gov/detailfull/r1/landmanagement/gis/?cid=fsp5_030970 </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1889</begdate>
+              <enddate>2003</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>USFS Northern Rockies Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the USFS Northern Rockies wildfire polygons in both space and year burned were erased from the USFS Northern Rockies dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Bureau of Land Management</origin>
+            <pubdate>20200507</pubdate>
+            <title>BLM Utah Wildfires 1976-2019</title>
+            <geoform>vector digital data</geoform>
+            <onlink>https://catalog.data.gov/dataset/blm-utah-fire-perimeter-fper-final-polygons </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1976</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>BLM Utah Wildfires</srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the BLM UT wildfire polygons in both space and year burned were erased from the BLM UT dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Washington State and Northwest Coordination Center in Portland, OR.</origin>
+            <pubdate>2018</pubdate>
+            <title>Washington State Large Wildfires 1973-2016</title>
+            <geoform>vector digital data</geoform>
+            <othercit>This link is no longer working, however, it was operational at the time of download. We do not know where the data currently reside.</othercit>
+            <onlink>http://data-wadnr.opendata.arcgis.com/datasets/washington-large-fires-1973-2018 </onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1973</begdate>
+              <enddate>2016</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>Washington State Large Wildfires </srccitea>
+        <srccontr>This layer is one of the 10 Tier 2 fire layers that are of higher quality and were merged and dissolved after the MTBS layer was uploaded. Any MTBS polygons that intersected the Washington State wildfire polygons in both space and year burned were erased from the Washington State dataset before it was merged with the other Tier 2 wildfires. </srccontr>
+      </srcinfo>
+      <srcinfo>
+        <srccite>
+          <citeinfo>
+            <origin>Justin L. Welty</origin>
+            <origin>Michelle I. Jeffries</origin>
+            <pubdate>202007</pubdate>
+            <title>Combined wildfire polygons for the United States and certain territories 1878-2019</title>
+            <edition>1.0.0</edition>
+            <geoform>vector digital data</geoform>
+            <onlink>https://doi.org/10.5066/P9Z2VVRT</onlink>
+          </citeinfo>
+        </srccite>
+        <typesrc>Digital and/or Hardcopy</typesrc>
+        <srctime>
+          <timeinfo>
+            <rngdates>
+              <begdate>1878</begdate>
+              <enddate>2019</enddate>
+            </rngdates>
+          </timeinfo>
+          <srccurr>publication date</srccurr>
+        </srctime>
+        <srccitea>Combined wildfire polygons</srccitea>
+        <srccontr>This dataset was the combined wildfire polygon dataset created as part of this publication. This dataset was used to generate the first year burned, most recent year burned, and count of times burned rasters.</srccontr>
+      </srcinfo>
+      <procstep>
+        <procdesc>Please see the polygon dataset for detailed step by step information on the polygon creation process. To create the combined wildfire polygon dataset, original fire data from multiple web sites were downloaded, cleaned, and edited to include a common set of fire attributes. These fires were merged and dissolved in a specific order to create one fire polygon per area and year. Attributes from the original fire datasets were associated with these new combined, dissolved polygons. The polygons were inspected for errors to ensure duplicates did not exist and attributes such as fire dates fell within the fire year indicated.</procdesc>
+        <srcused>BLM LDAP Wildfires</srcused>
+        <srcused>BLM Oregon Wildfires</srcused>
+        <srcused>California State Wildfires</srcused>
+        <srcused>GeoMac Wildfires</srcused>
+        <srcused>LTDL Wildfires</srcused>
+        <srcused>MTBS Wildfires</srcused>
+        <srcused>The Great 1910 Fire</srcused>
+        <srcused>USFS RAVG Wildfires</srcused>
+        <srcused>USFS SW Region Wildfires</srcused>
+        <srcused>USFS Northern Rockies Wildfires</srcused>
+        <srcused>BLM Utah Wildfires</srcused>
+        <srcused>Washington State Large Wildfires </srcused>
+        <procdate>202006</procdate>
+        <srcprod>Combined wildfire polygons</srcprod>
+      </procstep>
+      <procstep>
+        <procdesc>A square bounding box was drawn around the contiguous U.S. by selecting the fires that fell within the contiguous U.S. and ensuring the square bounding box was slightly larger than the burned perimeters. This ensured that if wildfires crossed into either Canada or Mexico their entire boundary would be captured. Using an Arcpy python script, a list of unique years were generated containing the every year where there was at least one fire from 1878 to 2019. The script looped through every year in the list and selected the fires that burned in that year. Using Arcpy's Feature to Raster tool, a 30m resolution raster was created with the bounding box set as the extent of the raster. The value of the burned area polygons were assigned the year the fires burned. All unburned areas were assigned a No Data value. This created 128 rasters, one for each year at least one fire had burned.</procdesc>
+        <srcused>Combined wildfire polygons</srcused>
+        <procdate>202007</procdate>
+      </procstep>
+      <procstep>
+        <procdesc>All 128 rasters were entered into Arcpy Cell Statistics and the FIRST setting was used. This created a single output where each pixel that did not have a No Data value contained the value of the year that pixel first burned according to our fire polygon dataset. Cell statistics was again run on all 128 rasters, except this time the LAST setting was used. All pixels that had a non-No Data value contained the most recent year a fire burned (through 2019). This process created 2 out of our 3 summary rasters.</procdesc>
+        <procdate>202007</procdate>
+      </procstep>
+      <procstep>
+        <procdesc>To create the count of times burned, we used the Arcpy CON tool on each of the 128 rasters with a value equal to the year they burned. The CON tool took any pixel with a value greater than 0 and set it to 1. No Data values remained No Data. Once all 35 rasters had their values converted to 1 or No Data, Cell Statistics and the SUM setting summed all the pixels that overlapped to create the count of the number of times summary raster.</procdesc>
+        <procdate>202007</procdate>
+      </procstep>
+    </lineage>
+  </dataqual>
+  <spdoinfo>
+    <direct>Raster</direct>
+    <rastinfo>
+      <rasttype>Grid Cell</rasttype>
+      <rowcount>109313</rowcount>
+      <colcount>154563</colcount>
+      <vrtcount>1</vrtcount>
+    </rastinfo>
+  </spdoinfo>
+  <spref>
+    <horizsys>
+      <planar>
+        <mapproj>
+          <mapprojn>Albers Conical Equal Area</mapprojn>
+          <albers>
+            <stdparll>20.0</stdparll>
+            <stdparll>60.0</stdparll>
+            <longcm>-96.0</longcm>
+            <latprjo>40.0</latprjo>
+            <feast>0.0</feast>
+            <fnorth>0.0</fnorth>
+          </albers>
+        </mapproj>
+        <planci>
+          <plance>row and column</plance>
+          <coordrep>
+            <absres>30.0</absres>
+            <ordres>30.0</ordres>
+          </coordrep>
+          <plandu>meters</plandu>
+        </planci>
+      </planar>
+      <geodetic>
+        <horizdn>North_American_Datum_1983</horizdn>
+        <ellips>GRS 1980</ellips>
+        <semiaxis>6378137.0</semiaxis>
+        <denflat>298.2572221010042</denflat>
+      </geodetic>
+    </horizsys>
+  </spref>
+  <eainfo>
+    <detailed>
+      <enttyp>
+        <enttypl>Count_of_Times_Burned_ContiguousUS_Raster_20200720.csv</enttypl>
+        <enttypd>Comma Separated Value (CSV) file containing attribute data from ContiguousUS_Wildfire_Count raster.</enttypd>
+        <enttypds>Producer Defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>OID</attrlabl>
+        <attrdef>Unique identifier</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <udom>Numeric</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>The number of times a pixel has burned</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1</rdommin>
+            <rdommax>15</rdommax>
+            <attrunit>Count</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Count</attrlabl>
+        <attrdef>The number of pixels associated with the number of times a pixel has burned.</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>3001</rdommin>
+            <rdommax>421410076</rdommax>
+            <attrunit>Pixel</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>First_Year_Burned_ContiguousUS_Raster_20200720.csv</enttypl>
+        <enttypd>Comma Separated Value (CSV) file containing attribute data from ContiguousUS_Wildfire_First_Year_Burned raster.</enttypd>
+        <enttypds>Producer Defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>OID</attrlabl>
+        <attrdef>Unique identifier</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <udom>Numeric</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>The first year there is a recorded wildfire in this dataset intersecting this pixel</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1878</rdommin>
+            <rdommax>2019</rdommax>
+            <attrunit>Calendar year</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Count</attrlabl>
+        <attrdef>The number of pixels associated with each year value</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>5373</rdommin>
+            <rdommax>44568344</rdommax>
+            <attrunit>Pixel</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+    <detailed>
+      <enttyp>
+        <enttypl>Most_Recent_Year_Burned_ContiguousUS_Raster_20200720.csv</enttypl>
+        <enttypd>Comma Separated Value (CSV) file containing attribute data from ContiguousUS_Wildfire_Most_Recent_Year_Burned raster..</enttypd>
+        <enttypds>Producer Defined</enttypds>
+      </enttyp>
+      <attr>
+        <attrlabl>OID</attrlabl>
+        <attrdef>Unique identifier</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <udom>Numeric</udom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Value</attrlabl>
+        <attrdef>The most recent year, through 2019, there is a recorded wildfire in this dataset intersecting this pixel</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>1878</rdommin>
+            <rdommax>2019</rdommax>
+            <attrunit>Calendar year</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+      <attr>
+        <attrlabl>Count</attrlabl>
+        <attrdef>The number of pixels associated with each year value</attrdef>
+        <attrdefs>Producer Defined</attrdefs>
+        <attrdomv>
+          <rdom>
+            <rdommin>5373</rdommin>
+            <rdommax>44568344</rdommax>
+            <attrunit>Pixel</attrunit>
+          </rdom>
+        </attrdomv>
+      </attr>
+    </detailed>
+  </eainfo>
+  <distinfo>
+    <distrib>
+      <cntinfo>
+        <cntperp>
+          <cntper>GS ScienceBase</cntper>
+          <cntorg>U.S. Geological Survey</cntorg>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing address</addrtype>
+          <address>Denver Federal Center, Building 810, Mail Stop 302</address>
+          <city>Denver</city>
+          <state>CO</state>
+          <postal>80225</postal>
+          <country>United States</country>
+        </cntaddr>
+        <cntvoice>1-888-275-8747</cntvoice>
+        <cntemail>sciencebase@usgs.gov</cntemail>
+      </cntinfo>
+    </distrib>
+    <distliab>Unless otherwise stated, all data, metadata and related materials are considered to satisfy the quality standards relative to the purpose for which the data were collected. Although these data and associated metadata have been reviewed for accuracy and completeness and approved for release by the U.S. Geological Survey (USGS), no warranty expressed or implied is made regarding the display or utility of the data on any other system or for general or scientific purposes, nor shall the act of distribution constitute any such warranty. Any use of trade, product, or firm names is for descriptive purposes only and does not imply endorsement by the U.S. Government.</distliab>
+    <stdorder>
+      <digform>
+        <digtinfo>
+          <formname>.tif, .gdb</formname>
+        </digtinfo>
+        <digtopt>
+          <onlinopt>
+            <computer>
+              <networka>
+                <networkr>https://doi.org/10.5066/P9Z2VVRT</networkr>
+              </networka>
+            </computer>
+          </onlinopt>
+        </digtopt>
+      </digform>
+      <fees>None</fees>
+    </stdorder>
+  </distinfo>
+  <metainfo>
+    <metd>20200813</metd>
+    <metc>
+      <cntinfo>
+        <cntperp>
+          <cntper>FRESC Science Data Coordinator</cntper>
+          <cntorg>U.S. Geological Survey, Forest and Rangeland Ecosystem Science Center</cntorg>
+        </cntperp>
+        <cntaddr>
+          <addrtype>mailing and physical</addrtype>
+          <address>777 NW 9th Street, Suite 400</address>
+          <city>Corvallis</city>
+          <state>OR</state>
+          <postal>97330</postal>
+        </cntaddr>
+        <cntvoice>(541) 750-1030</cntvoice>
+        <cntemail>fresc_outreach@usgs.gov</cntemail>
+      </cntinfo>
+    </metc>
+    <metstdn>FGDC Biological Data Profile of the Content Standard for Digital Geospatial Metadata</metstdn>
+    <metstdv>FGDC-STD-001.1-1999</metstdv>
+  </metainfo>
+</metadata>
