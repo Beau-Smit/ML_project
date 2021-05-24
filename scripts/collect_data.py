@@ -24,52 +24,104 @@ def main():
 	null_categories = df[df['landslide_category'].isnull()]
 	df = df[~df['landslide_category'].isnull()]
 	df = df[df['landslide_category'] != 'snow_avalanche']
-	df = df[~df['landslide_trigger'].isin(['construction', 'earthquake', 'vibration'])]
 	df = pd.concat([df, null_categories])
-	pull_elevations(df, pull_trues=False, pull_falses=True)
+	df = df[~df['landslide_trigger'].isin(['construction', 'earthquake', 'vibration'])]
+	df = df[~df['event_date'].isnull()]
+	df['event_date'] = pd.to_datetime(df['event_date'])
+	df['event_date'] = df['event_date'].dt.round('h')
+	pull_elevations(df, pull_trues=True, pull_falses=True)
 	# pull_precipitation()
 	# organize_precipitation()
 
+
 def pull_elevations(df, pull_trues, pull_falses):
+	gen_prev_year_falses = True
 	if pull_trues:
 		elev_files = []
-		for index_val in df.index.tolist():
-			obs = df.loc[index_val]
-			# pull_elevations_helper(obs, index_val)
-			elev_files.append(str(index_val)+'.tiff')
+		tups = [(df.loc[index_val], index_val, False) for index_val in df.index.tolist()]
+		with Pool(8) as p:
+			p.map(pull_elevations_helper, tups)
+		elev_files = [str(index_val)+'.tiff' for index_val in df.index.tolist()]
+		# for index_val in df.index.tolist():
+		# 	obs = df.loc[index_val]
+		# 	pull_elevations_helper(obs, index_val, false=False)
+		# 	elev_files.append(str(index_val)+'.tiff')
 		df['elev_files'] = elev_files
 		df.to_csv('nasa_global_landslide_catalog_point.csv')
 	if pull_falses:
-		# The falses were generated with QGIS3 by loading the USA shapefile found in data/usa_shp
+		if gen_prev_year_falses:
+			prev_year_false_dates = create_prev_year_falses(df)
+		# The falses were generated with QGIS3 by loading the USA shapefile found in data/continuous_us
 		# then going to vector -> research tools -> random points inside polygons
-		# and selecting a number that's 4x the length of the dataframe and adding the stipulation
+		# and selecting 15000 points with the additional stipulation
 		# that the points must be minimum .001 degree away from each other
 		# We then assign them dates randomly here
-		false_slide_pts = gpd.read_file('../data/false_slide_points/false_slide_points.shp')
+		false_slide_pts = gpd.read_file('../data/fake_slides/fake_slides.shp')
 		false_slide_pts['longitude'] = false_slide_pts['geometry'].x
 		false_slide_pts['latitude'] = false_slide_pts['geometry'].y
+		false_slide_pts = create_false_dates(false_slide_pts)
 		start_date = date.today().replace(day=1, month=1, year=2000).toordinal()
 		end_date = date.today().replace(day=31, month=12, year=2020).toordinal()
-		dates = []
+		# dates = []
 		elev_files = []
-		for index_val in false_slide_pts.index.tolist():
-			obs = false_slide_pts.loc[index_val]
-			pull_elevations_helper(obs, index_val)
-			random_date = date.fromordinal(random.randint(start_date, end_date))
-			print(type(random_date))
-			elev_file = 'false_'+str(index_val)+'.tiff'
-			elev_files.append(elev_file)
-			dates.append(random_date)
+		# print(len(false_slide_pts.index))
+		# sys.exit()
+		tups = [(false_slide_pts.loc[index_val], index_val, True) for index_val in false_slide_pts.index.tolist()]
+		with Pool(8) as p:
+			p.map(pull_elevations_helper, tups)
+		elev_files = ['false_'+str(index_val)+'.tiff' for index_val in df.index.tolist()]
+
+		# for index_val in false_slide_pts.index.tolist():
+		# 	obs = false_slide_pts.loc[index_val]
+		# 	# the below is comedy
+		# 	pull_elevations_helper(obs, index_val, false=True)
+		# 	random_date = date.fromordinal(random.randint(start_date, end_date))
+		# 	print(type(random_date))
+		# 	elev_file = 'false_'+str(index_val)+'.tiff'
+		# 	elev_files.append(elev_file)
 		false_slide_pts['event_date'] = dates
-		# false_slide_pts['elev_files'] = elev_files
+		false_slide_pts['elev_files'] = elev_files
 		false_slide_pts['Landslide Occurred'] = 0
-		falses = falses.to_csv('../data/false_landslide_pts.csv')
+		falses = false_slide_pts.to_csv('../data/false_landslide_pts.csv')
 
 
-def pull_elevations_helper(obs, index_val):
+def create_prev_year_falses(df):
+	# pseudocode: for every slide, look a year back
+	# and calculate the date for that
+	df['event_date'] = [pd.Timestamp(str(event_date)) for event_date in df['event_date']]
+	df['true_slide'] = 1
+	df['elevation_file'] = [str(index_val) + '.tiff' for index_val in df.index.tolist()]
+	false_df = df.copy()
+	false_df['true_slide'] = 0
+	false_df['event_date'] = false_df['event_date'].apply(lambda date: date - pd.DateOffset(years=1))
+	false_df['elevation_file'] = ['year_later_'+true_slide_tiff for true_slide_tiff in df['elevation_file']]
+	for year_later_tiff, true_slide_tiff in zip(false_df['elevation_file'], df['elevation_file']):
+		with open('../data/elevations/'+true_slide_tiff, 'rb') as f:
+			tiff_file = f.read()
+		with open('../data/elevations/'+year_later_tiff, 'wb') as f:
+			f.write(tiff_file)
+	full_df = pd.concat([df,false_df])
+	return full_df
+
+
+def create_false_dates(false_slide_pts):
+	# for every false slide point in the shapefile, generate a random date in the range
+	# June 2000 to end of 2020
+	start_date = date.today().replace(day=1, month=1, year=2000).toordinal()
+	end_date = date.today().replace(day=31, month=12, year=2020).toordinal()
+	false_slide_pts['event_date'] = [date.fromordinal(random.randint(start_date, end_date)) for x in range(len(false_slide_pts))]
+	false_slide_pts['true_slide'] = 0
+	return false_slide_pts
+
+
+def pull_elevations_helper(tup):
+	obs, index_val, false = tup[0], tup[1], tup[2]
 	args = {'west': obs['longitude']-.1, 'east': obs['longitude']+.1, 'south': obs['latitude']-.1, 'north': obs['latitude']+.1,
 			'demtype': 'SRTMGL3', 'API_key': config.OPEN_ELEV_KEY}
-	tiff_path = DATA_PATH / 'elevations' / ('false_'+str(index_val)+'.tiff')
+	if false:
+		tiff_path = DATA_PATH / 'elevations' / ('false_'+str(index_val)+'.tiff')
+	else:
+		tiff_path = DATA_PATH / 'elevations' / (str(index_val)+'.tiff')
 	if tiff_path.exists():
 		print(f'{str(tiff_path)} exists, continuing')
 		return
@@ -80,7 +132,7 @@ def pull_elevations_helper(obs, index_val):
 
 
 def pull_precipitation():
-	link_path = DATA_PATH / 'subset_GPM_3IMERGHH_06_20210422_204824.txt'
+	link_path = DATA_PATH / 'subset_GPM_3IMERGHHE_06_20210511_165905.txt'
 	links = link_path.read_text()
 	links = links.split('\n')
 
@@ -89,18 +141,19 @@ def pull_precipitation():
 
 
 def pull_precip_helper(link):
-	if link.endswith('.HDF5'):	
-		link_file = link.strip('https://gpm1.gesdisc.eosdis.nasa.gov/data/GPM_L3/')
+	if 'pdf' not in link:
+		link_file = link.split('3IMERGHHE.')[-1]
+		link_file = link_file.split('?')[0]
 		link_file = link_file.replace('/', '_')
 		link_path = DATA_PATH / 'precip' / link_file
 		if link_path.exists():
 			print(f'{link_path} exists, skipping')
 			return
-		proc = subprocess.run(['curl', '-n', '-c', '~/.urs_cookies', '-b', '~/.urs_cookies', '-LJO', '--url', link], 
-			                  check=True,
-			                  capture_output=True,
-			                  cwd='../data/precip')
-		print(f'Downloaded {link}')
+		response = requests.get(link)
+			# result.raise_for_status()
+		with open('../data/precip/'+link_file, 'wb') as f:
+			f.write(response.content)
+			print(f'Downloaded {link}')
 
 
 def organize_precipitation():
