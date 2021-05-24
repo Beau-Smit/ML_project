@@ -19,7 +19,19 @@ US 1 meter: https://catalog.data.gov/dataset/1-meter-digital-elevation-models-de
 
 Global: https://portal.opentopography.org/apidocs/#/Public/getGlobalDem
 
-##### Vegetation
+https://registry.opendata.aws/copernicus-dem/
+
+##### Vegetation / Satellite
+
+https://search.earthdata.nasa.gov/search
+
+https://scihub.copernicus.eu/
+
+https://registry.opendata.aws/sentinel-2/#:~:text=The%20Sentinel%2D2%20mission%20is,use%20in%20on%2Dgoing%20studies.
+
+# Water features
+
+https://www.naturalearthdata.com/downloads/10m-physical-vectors/10m-rivers-lake-centerlines/
 
 ##### Seismic activity
 
