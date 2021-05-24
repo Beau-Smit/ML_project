@@ -37,6 +37,8 @@ def read_in_landslides():
 		df['event_year'] = [int(date.split('-')[0]) for date in df['event_date']]
 		df = df[df['event_year'] >= 2000]
 		df['Landslide Occurred'] = 1
+		print(len(df))
+		# sys.exit()
 
 		# Duplicate the landslides for the prior year where year >2000
 		later_than_2001 = df[df['event_year'] > 2000]
@@ -46,7 +48,7 @@ def read_in_landslides():
 		df = pd.concat([df, later_than_2001])
 
 		# Read in set of negative examples
-		falses = 
+		# falses = 
 		df.to_csv('../data/landslides_to_use.csv')
 	else:
 		df = pd.read_csv(landslide_path, index_col='event_id')
