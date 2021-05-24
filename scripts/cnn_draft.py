@@ -14,7 +14,7 @@ def df_to_dataset(dataframe, shuffle=True, batch_size=32):
     return ds
 
 
-ls_cdf = pd.read_csv("/Users/shaislotky/Desktop/landslide/ML_project/data/nasa_global_landslide_catalog_point.csv")
+ls_cdf = pd.read_csv("../data/nasa_global_landslide_catalog_point.csv")
 fake_rows = ls_cdf.sample(1000)
 fake_rows['landslide'] = 0
 ls_cdf['landslide'] = 1
