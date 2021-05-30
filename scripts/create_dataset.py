@@ -17,6 +17,20 @@ def main():
 	df = pull_precip(df, file_format_dates)
 
 
+def create_falses(df):
+	false_slide_pts = gpd.read_file('../data/fake_slides/fake_slides.shp')
+	false_slide_pts['longitude'] = false_slide_pts['geometry'].x
+	false_slide_pts['latitude'] = false_slide_pts['geometry'].y
+	false_slide_pts = create_false_dates(false_slide_pts)
+	date_set = list(set(df['event_date']))
+	false_slide_pts = create_drops_and_files(false_slide_pts, 'false_')
+	dates = [random.sample(date_set) for index_val in false_slide_pts.index.tolist()]
+	false_slide_pts['event_date'] = dates
+	false_slide_pts['true_slide'] = 0
+	df = pd.concat([df, false_slide_pts])
+	return df
+
+
 def pull_precip(df, file_format_dates):
 	all_file_format_dates = [file_format_date_set.values() for file_format_date_set in file_format_dates]
 	all_file_format_dates = [file_format_date for sub_list in all_file_format_dates for file_format_date in sub_list]
@@ -52,10 +66,12 @@ def pull_precip_helper(link):
 			f.write(response.content)
 			print(f'Downloaded {link}')
 
+
 def process_dates(df):
 	dates = list(set(df['event_date']))
 	all_dates, file_format_dates = date_helper(dates)
 	return all_dates, file_format_dates
+
 
 def date_helper(dates):
 	all_dates = []
@@ -79,6 +95,7 @@ def format_date(datey):
 	full_date_string = date_part+'-S'+start_time_part+'-E'+str(end_date_part)
 	return full_date_string
 
+
 def process_landslides():
 	main_df_path = DATA_PATH / 'nasa_global_landslide_catalog_point.csv'
 	df = pd.read_csv(main_df_path)
@@ -93,7 +110,27 @@ def process_landslides():
 	df['event_date'] = df['event_date'].dt.round('h')
 	df['event_date'] = [pd.Timestamp(str(event_date)) for event_date in df['event_date']]
 	df['true_slide'] = 1
+	df = create_drops_and_files(df, '')
 	df = add_prev_year_falses(df)
+	df = create_falses(df)
+	return df
+
+
+def create_drops_and_files(df, file_name_start):
+	drops = []
+	files = []
+	for index_val in df.index.tolist():
+		slide_file = file_name_start + str(index_val) + '.tiff'
+		slide_path = Path.cwd() / 'elevations' / slide_file
+		if slide_path.st().st_size < 10000:
+			drops.append(True)
+		else:
+			drops.append(False)
+		files.append(slide_file)
+	df['drops'] = drops
+	df['elevation_file'] = files
+	df = df[df['drops']]
+	df = df.drop('drops', 1)
 	return df
 
 
@@ -103,15 +140,24 @@ def add_prev_year_falses(df):
 	false_df['true_slide'] = 0
 	false_df['event_date'] = false_df['event_date'].apply(lambda date: date - pd.DateOffset(years=1))
 	false_df['elevation_file'] = ['year_later_'+true_slide_tiff for true_slide_tiff in df['elevation_file']]
+	drops = []
 	for year_later_tiff, true_slide_tiff in zip(false_df['elevation_file'], df['elevation_file']):		
 		year_later_tiff_path = DATA_PATH / 'elevations' / year_later_tiff
 		true_slide_tiff_path = DATA_PATH / 'elevations' / true_slide_tiff
+		if true_slide_tiff_path.stat().st_size < 10000:
+			drops.append(True)
+		else:
+			drops.append(False)
+
 		if year_later_tiff_path.exists():
 			continue
 		with open(true_slide_tiff_path, 'rb') as f:
 			tiff_file = f.read()
 		with open(year_later_tiff_path, 'wb') as f:
 			f.write(tiff_file)
+	false_df['drop'] = drops
+	false_df = false_df[false_df['drop']]
+	false_df = false_df.drop('drop', 1)
 	full_df = pd.concat([df,false_df])
 	return full_df
 
