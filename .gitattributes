@@ -3,3 +3,4 @@ data/fake_slides/fake_slides.shp filter=lfs diff=lfs merge=lfs -text
 *.shp filter=lfs diff=lfs merge=lfs -text
 data/subset_GPM_3IMERGHHE_06_20210511_165905.txt filter=lfs diff=lfs merge=lfs -text
 data/useful_precip_links.txt filter=lfs diff=lfs merge=lfs -text
+data/wildfires/wildfire.geojson filter=lfs diff=lfs merge=lfs -text

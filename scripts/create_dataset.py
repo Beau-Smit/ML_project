@@ -6,25 +6,90 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from dateutil.relativedelta import relativedelta
-
+from netCDF4 import Dataset
+import geopandas as gpd
+import rasterio
+from rasterio.features import shapes
+from shapely.geometry import shape
+from rasterio.plot import show
 
 RANDOM_SEED = 12
 DATA_PATH = Path.cwd() / '..' / 'data'
+PULL_PRECIPITATION = False
 
 def main():
+	df = add_fires()
+	sys.exit()
 	df = process_landslides()
 	all_dates, file_format_dates = process_dates(df)
-	df = pull_precip(df, file_format_dates)
+	if PULL_PRECIPITATION:
+		pull_precip(df, file_format_dates)
+	df = add_precip(df, file_format_dates)
+	# fires go here
+	df.to_csv('../data/final_landslides.csv')
 
+
+def add_fires():
+	fires_path = DATA_PATH / 'wildfires' / 'wildfire.geojson'
+	# with rasterio.open(fires_path) as fires_file:
+	# 	fires = fires_file.read(1)
+	# 	show(fires_file)
+	# shapes = rasterio.features.dataset_features(fires)
+	# fire_gdf = gpd.GeoDataFrame.from_features(shapes)
+	# 	, window=rasterio.windows.Window(24.39, -124.84, 49.39, -66.89)
+
+	# with rasterio.Env():
+	# 	with rasterio.open(fires_path) as fires:
+	# 		fire_image = fires.read(1)
+	# 		fire_results = ({'properties': {'raster_val': v}, 'geometry': s} for i, (s, v) in 
+	# 			enumerate(shapes(fire_image, mask=mask, transform=fires.transform)))
+	# 		geoms = list(fire_results)
+	# 		fire_gdf = gpd.GeoDataFrame.from_features(geoms)
+	print(fire_gdf)
+
+def add_precip(df, file_format_dates):
+	precip_path = DATA_PATH / 'precip'
+	precip_files = [file for file in precip_path.iterdir()]
+	precip_data_dict_list = []
+	for date_set, df_index_val in zip(file_format_dates, range(len(df.index.tolist()))):
+		obs = df.iloc[df_index_val]
+		obs_lat = obs['latitude']
+		obs_lon = obs['longitude']
+		precip_data_dict = {}
+		for minute_offset, file_format_date in date_set.items():
+			file_found = False
+			precip_path_index = 0
+			while not file_found:
+				if file_format_date in precip_files[precip_path_index].name:
+					file_found = True
+					found_file = precip_files[precip_path_index]
+				precip_path_index += 1
+			if not file_found:
+				raise Exception(f'File matching {file_format_date} not found')
+			with Dataset(found_file) as precip_dataset:
+				precip_matrix = np.asarray(precip_dataset['precipitationCal'][:])[0]
+				lat_matrix = precip_dataset['lat'][:]
+				lon_matrix = precip_dataset['lon'][:]
+				closest_lat_index, closest_lon_index = closest_val_idx(lat_matrix, obs_lat), closest_val_idx(lon_matrix, obs_lon)
+				precip_data_dict[minute_offset] = precip_matrix[closest_lon_index][closest_lat_index]
+				precip_data_dict_list.append(precip_data_dict)
+	precip_df = pd.DataFrame(data=precip_data_dict_list)
+	df = pd.merge(df, precip_df, left_index=True, right_index=True)
+	return df
+
+
+def closest_val_idx(value_list, main_val):
+	value_list = np.asarray(value_list)
+	closest_val_index = (np.abs(value_list - main_val)).argmin()
+	return closest_val_index
 
 def create_falses(df):
 	false_slide_pts = gpd.read_file('../data/fake_slides/fake_slides.shp')
 	false_slide_pts['longitude'] = false_slide_pts['geometry'].x
 	false_slide_pts['latitude'] = false_slide_pts['geometry'].y
-	false_slide_pts = create_false_dates(false_slide_pts)
 	date_set = list(set(df['event_date']))
 	false_slide_pts = create_drops_and_files(false_slide_pts, 'false_')
-	dates = [random.sample(date_set) for index_val in false_slide_pts.index.tolist()]
+	dates = [random.sample(date_set, 1)[0] for index_val in false_slide_pts.index.tolist()]
 	false_slide_pts['event_date'] = dates
 	false_slide_pts['true_slide'] = 0
 	df = pd.concat([df, false_slide_pts])
@@ -68,7 +133,7 @@ def pull_precip_helper(link):
 
 
 def process_dates(df):
-	dates = list(set(df['event_date']))
+	dates = df['event_date']
 	all_dates, file_format_dates = date_helper(dates)
 	return all_dates, file_format_dates
 
@@ -107,6 +172,7 @@ def process_landslides():
 	df = df[~df['landslide_trigger'].isin(['construction', 'earthquake', 'vibration'])]
 	df = df[~df['event_date'].isnull()]
 	df['event_date'] = pd.to_datetime(df['event_date'])
+	df = df.loc[df['event_date'].dt.year >= 2001]
 	df['event_date'] = df['event_date'].dt.round('h')
 	df['event_date'] = [pd.Timestamp(str(event_date)) for event_date in df['event_date']]
 	df['true_slide'] = 1
@@ -121,11 +187,11 @@ def create_drops_and_files(df, file_name_start):
 	files = []
 	for index_val in df.index.tolist():
 		slide_file = file_name_start + str(index_val) + '.tiff'
-		slide_path = Path.cwd() / 'elevations' / slide_file
-		if slide_path.st().st_size < 10000:
-			drops.append(True)
-		else:
+		slide_path = DATA_PATH / 'elevations' / slide_file
+		if slide_path.stat().st_size < 10000:
 			drops.append(False)
+		else:
+			drops.append(True)
 		files.append(slide_file)
 	df['drops'] = drops
 	df['elevation_file'] = files
@@ -140,14 +206,15 @@ def add_prev_year_falses(df):
 	false_df['true_slide'] = 0
 	false_df['event_date'] = false_df['event_date'].apply(lambda date: date - pd.DateOffset(years=1))
 	false_df['elevation_file'] = ['year_later_'+true_slide_tiff for true_slide_tiff in df['elevation_file']]
+	false_df = false_df.loc[false_df['event_date'].dt.year >= 2001]
 	drops = []
 	for year_later_tiff, true_slide_tiff in zip(false_df['elevation_file'], df['elevation_file']):		
 		year_later_tiff_path = DATA_PATH / 'elevations' / year_later_tiff
 		true_slide_tiff_path = DATA_PATH / 'elevations' / true_slide_tiff
 		if true_slide_tiff_path.stat().st_size < 10000:
-			drops.append(True)
-		else:
 			drops.append(False)
+		else:
+			drops.append(True)
 
 		if year_later_tiff_path.exists():
 			continue
