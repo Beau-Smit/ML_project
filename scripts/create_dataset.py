@@ -24,16 +24,28 @@ def main():
 		pull_precip(df, file_format_dates)
 	df = add_precip(df, file_format_dates)
 	df = add_fires(df)
+	df = clean(df)
 	df.to_csv('../data/final_landslides.csv')
+
+
+def clean(df):
+	df = df.reset_index()
+	df = df[['true_slide', 'latitude', 'longitude', 'max_elev_change', 'median_elev', 
+	         'mean_elev', 'mean_median_diff', 'total_elev', 'median_elev_change', 
+	         'mean_elev_change', 'total_elev_change', 'Precip_30_min_before', 
+	         'Precip_60_min_before', 'Precip_90_min_before', 'Precip_120_min_before',
+	         'fire_<=1_year_before', 'fire_<=3_year_before', 'fire_<=5_year_before']]
+	return df
 
 
 def add_elevations(df):
 	elevation_helper_tuples = [(index_val, elev_filename) for index_val, elev_filename in zip(df.index.tolist(), df['elevation_file'])]
 	with Pool(8) as p:
-		elev_bar_dict_list = p.map(elevation_helper, elevation_helper_tuples)
+		elev_var_dict_list = p.map(elevation_helper, elevation_helper_tuples)
 	elev_vars = pd.DataFrame(data=elev_var_dict_list)
 	elev_vars.index = elev_vars['index']
-	df = pd.merge(df, elev_vars, how='inner', left_index=True, right_index=True)
+	for col in elev_vars.columns:
+		df[col] = elev_vars[col].tolist()
 	return df
 
 
@@ -46,18 +58,18 @@ def elevation_helper(elevation_helper_tuple):
 		flat_elev_array  = elev_array.flatten()
 		flat_elev_array.sort()
 		elev_var_dict['max_elev_change']  = abs(max(flat_elev_array) - min(flat_elev_array))
-		elev_var_dict['median_elev']      = statistics.median(flat_elev_array)
+		elev_var_dict['median_elev']      = np.median(flat_elev_array)
 		elev_var_dict['mean_elev']	      = (sum(flat_elev_array)/len(flat_elev_array))
 		elev_var_dict['mean_median_diff'] = abs(elev_var_dict['mean_elev'] - elev_var_dict['median_elev'])
 		elev_var_dict['total_elev']       = np.sum(elev_array)
 		
 		elev_diff_rows   = np.diff(elev_array)
-		elev_diff_cols   = np.diff(np.flip(elev_array))
+		elev_diff_cols   = np.diff(np.flip(elev_array, axis=0))
 		elev_diff        = np.add(elev_diff_cols, elev_diff_rows)
 		flat_elev_diff   = elev_diff.flatten()
-		elev_var_dict['median_elev_change']  = statistics.median(flat_elev_diff)
-		elev_var_dict['mean_elev_change']    = statistics.mean(flat_elev_diff)
-		elev_var_dict['total_elev_change']   = np.sum(elev_diff)
+		elev_var_dict['median_elev_change']  = np.median(flat_elev_diff)
+		elev_var_dict['mean_elev_change']    = np.mean(flat_elev_diff)
+		elev_var_dict['total_elev_change']   = np.sum([abs(x) for x in flat_elev_diff])
 		elev_var_dict['index'] = index_val
 	return elev_var_dict
 
@@ -93,6 +105,7 @@ def add_precip(df, file_format_dates):
 				if file_format_date in precip_files[precip_path_index].name:
 					file_found = True
 					found_file = precip_files[precip_path_index]
+					break
 				precip_path_index += 1
 			if not file_found:
 				raise Exception(f'File matching {file_format_date} not found')
@@ -102,9 +115,13 @@ def add_precip(df, file_format_dates):
 				lon_matrix = precip_dataset['lon'][:]
 				closest_lat_index, closest_lon_index = closest_val_idx(lat_matrix, obs_lat), closest_val_idx(lon_matrix, obs_lon)
 				precip_data_dict[minute_offset] = precip_matrix[closest_lon_index][closest_lat_index]
-				precip_data_dict_list.append(precip_data_dict)
+		precip_data_dict_list.append(precip_data_dict)
+		# sys.exit()
 	precip_df = pd.DataFrame(data=precip_data_dict_list)
-	df = pd.merge(df, precip_df, left_index=True, right_index=True)
+	precip_df = precip_df.rename(columns={30: 'Precip_30_min_before', 60: 'Precip_60_min_before', 
+		                                  90: 'Precip_90_min_before', 120: 'Precip_120_min_before'})
+	for col in precip_df.columns:
+		df[col] = precip_df[col].tolist()
 	return df
 
 
