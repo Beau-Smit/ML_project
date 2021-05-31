@@ -8,9 +8,7 @@ import numpy as np
 from dateutil.relativedelta import relativedelta
 from netCDF4 import Dataset
 import geopandas as gpd
-import rasterio
-from rasterio.features import shapes
-from shapely.geometry import shape
+from shapely.geometry import Point
 from rasterio.plot import show
 
 RANDOM_SEED = 12
@@ -18,9 +16,8 @@ DATA_PATH = Path.cwd() / '..' / 'data'
 PULL_PRECIPITATION = False
 
 def main():
-	df = add_fires()
-	sys.exit()
 	df = process_landslides()
+	df = add_fires(df)
 	all_dates, file_format_dates = process_dates(df)
 	if PULL_PRECIPITATION:
 		pull_precip(df, file_format_dates)
@@ -29,23 +26,21 @@ def main():
 	df.to_csv('../data/final_landslides.csv')
 
 
-def add_fires():
+def add_fires(df):
+	df = gpd.GeoDataFrame(df, geometry='geometry', crs='EPSG:4326')
 	fires_path = DATA_PATH / 'wildfires' / 'wildfire.geojson'
-	# with rasterio.open(fires_path) as fires_file:
-	# 	fires = fires_file.read(1)
-	# 	show(fires_file)
-	# shapes = rasterio.features.dataset_features(fires)
-	# fire_gdf = gpd.GeoDataFrame.from_features(shapes)
-	# 	, window=rasterio.windows.Window(24.39, -124.84, 49.39, -66.89)
+	wildfire_gdf = gpd.read_file(fires_path)
+	wildfire_gdf.crs = 'ESRI:102008'
+	wildfire_gdf = wildfire_gdf.to_crs('EPSG:4326')
+	df = gpd.sjoin(df, wildfire_gdf, how='left')
+	print(len(df))
+	print(sum([0 if np.isnan(DN) else 1 for DN in df['DN'] ]))
+	df['year'] = [int(event_date.year) for event_date in df['event_date']]
+	df['fire_<=1_year_before'] = [1 if year - fire_year <= 1 else 0 for year, fire_year in zip(df['year'], df['DN'])]
+	df['fire_<=3_year_before'] = [1 if year - fire_year <= 3 else 0 for year, fire_year in zip(df['year'], df['DN'])]
+	df['fire_<=5_year_before'] = [1 if year - fire_year <= 5 else 0 for year, fire_year in zip(df['year'], df['DN'])]
+	return df
 
-	# with rasterio.Env():
-	# 	with rasterio.open(fires_path) as fires:
-	# 		fire_image = fires.read(1)
-	# 		fire_results = ({'properties': {'raster_val': v}, 'geometry': s} for i, (s, v) in 
-	# 			enumerate(shapes(fire_image, mask=mask, transform=fires.transform)))
-	# 		geoms = list(fire_results)
-	# 		fire_gdf = gpd.GeoDataFrame.from_features(geoms)
-	print(fire_gdf)
 
 def add_precip(df, file_format_dates):
 	precip_path = DATA_PATH / 'precip'
@@ -176,9 +171,11 @@ def process_landslides():
 	df['event_date'] = df['event_date'].dt.round('h')
 	df['event_date'] = [pd.Timestamp(str(event_date)) for event_date in df['event_date']]
 	df['true_slide'] = 1
+	df['geometry'] = [Point(lon, lat) for lon, lat in zip(df['longitude'], df['latitude'])]
 	df = create_drops_and_files(df, '')
 	df = add_prev_year_falses(df)
 	df = create_falses(df)
+	df = df.drop(['Unnamed: 0'], 1)
 	return df
 
 
