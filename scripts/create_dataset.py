@@ -9,7 +9,8 @@ from dateutil.relativedelta import relativedelta
 from netCDF4 import Dataset
 import geopandas as gpd
 from shapely.geometry import Point
-from rasterio.plot import show
+import rasterio
+import statistics
 
 RANDOM_SEED = 12
 DATA_PATH = Path.cwd() / '..' / 'data'
@@ -17,13 +18,49 @@ PULL_PRECIPITATION = False
 
 def main():
 	df = process_landslides()
-	df = add_fires(df)
+	df = add_elevations(df)
 	all_dates, file_format_dates = process_dates(df)
 	if PULL_PRECIPITATION:
 		pull_precip(df, file_format_dates)
 	df = add_precip(df, file_format_dates)
-	# fires go here
+	df = add_fires(df)
 	df.to_csv('../data/final_landslides.csv')
+
+
+def add_elevations(df):
+	elevation_helper_tuples = [(index_val, elev_filename) for index_val, elev_filename in zip(df.index.tolist(), df['elevation_file'])]
+	with Pool(8) as p:
+		elev_bar_dict_list = p.map(elevation_helper, elevation_helper_tuples)
+	elev_vars = pd.DataFrame(data=elev_var_dict_list)
+	elev_vars.index = elev_vars['index']
+	df = pd.merge(df, elev_vars, how='inner', left_index=True, right_index=True)
+	return df
+
+
+def elevation_helper(elevation_helper_tuple):
+	index_val, elev_filename = elevation_helper_tuple[0], elevation_helper_tuple[1]
+	elev_path = DATA_PATH / 'elevations' / elev_filename
+	elev_var_dict = {}
+	with rasterio.open(elev_path) as elev_file:
+		elev_array = elev_file.read()[0]
+		flat_elev_array  = elev_array.flatten()
+		flat_elev_array.sort()
+		elev_var_dict['max_elev_change']  = abs(max(flat_elev_array) - min(flat_elev_array))
+		elev_var_dict['median_elev']      = statistics.median(flat_elev_array)
+		elev_var_dict['mean_elev']	      = (sum(flat_elev_array)/len(flat_elev_array))
+		elev_var_dict['mean_median_diff'] = abs(elev_var_dict['mean_elev'] - elev_var_dict['median_elev'])
+		elev_var_dict['total_elev']       = np.sum(elev_array)
+		
+		elev_diff_rows   = np.diff(elev_array)
+		elev_diff_cols   = np.diff(np.flip(elev_array))
+		elev_diff        = np.add(elev_diff_cols, elev_diff_rows)
+		flat_elev_diff   = elev_diff.flatten()
+		elev_var_dict['median_elev_change']  = statistics.median(flat_elev_diff)
+		elev_var_dict['mean_elev_change']    = statistics.mean(flat_elev_diff)
+		elev_var_dict['total_elev_change']   = np.sum(elev_diff)
+		elev_var_dict['index'] = index_val
+	return elev_var_dict
+
 
 
 def add_fires(df):
@@ -33,8 +70,6 @@ def add_fires(df):
 	wildfire_gdf.crs = 'ESRI:102008'
 	wildfire_gdf = wildfire_gdf.to_crs('EPSG:4326')
 	df = gpd.sjoin(df, wildfire_gdf, how='left')
-	print(len(df))
-	print(sum([0 if np.isnan(DN) else 1 for DN in df['DN'] ]))
 	df['year'] = [int(event_date.year) for event_date in df['event_date']]
 	df['fire_<=1_year_before'] = [1 if year - fire_year <= 1 else 0 for year, fire_year in zip(df['year'], df['DN'])]
 	df['fire_<=3_year_before'] = [1 if year - fire_year <= 3 else 0 for year, fire_year in zip(df['year'], df['DN'])]
@@ -150,8 +185,8 @@ def date_helper(dates):
 def format_date(datey):
 	date_part        = str(datey).split(' ')[0].replace('-', '')
 	start_time_part  = str(datey).split(' ')[1].replace(':', '')
-	end_date_part    = datey+relativedelta(minutes=30)
-	end_date_part    = str(end_date_part-relativedelta(seconds=1)).split(' ')[1].replace(':', '')
+	end_date_part	 = datey+relativedelta(minutes=30)
+	end_date_part	 = str(end_date_part-relativedelta(seconds=1)).split(' ')[1].replace(':', '')
 	full_date_string = date_part+'-S'+start_time_part+'-E'+str(end_date_part)
 	return full_date_string
 
