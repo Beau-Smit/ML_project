@@ -3,13 +3,12 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.metrics import Precision, Recall
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 
 def main():
 	y, X = load_data()
-	kf = StratifiedKFold(n_splits=10, shuffle=True)
+	kf = StratifiedKFold(n_splits=10, shuffle=True, random_state=12)
 	training_dict = {}
 	test_dict = {}
 	fold = 1
