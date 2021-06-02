@@ -23,25 +23,31 @@ def main():
 		model.add(Dense(8, activation='relu'))
 		model.add(Dense(1, activation='sigmoid'))
 		model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', Recall(), Precision(), 'AUC'])
-		history = model.fit(X_train, y_train, batch_size=32, epochs=50, workers=8, use_multiprocessing=True)
-		print(history.history.keys())
+		history = model.fit(X_train, y_train, batch_size=32, epochs=50, workers=8, use_multiprocessing=True, validation_data=(X_test, y_test))
+		# print(history.history.keys())
 		# sys.exit()
 		for epoch_count in range(50):
 			index = (fold-1)*50+epoch_count
 			if 'precision' in history.history.keys():
 				training_dict[index] = [fold, epoch_count+1, history.history['loss'][epoch_count], history.history['accuracy'][epoch_count], 
 										history.history['auc'][epoch_count], history.history['precision'][epoch_count], 
-										history.history['recall'][epoch_count]]
+										history.history['recall'][epoch_count], history.history['val_loss'][epoch_count], 
+										history.history['val_accuracy'][epoch_count], history.history['val_recall'][epoch_count],
+										history.history['val_precision'][epoch_count], history.history['val_auc'][epoch_count]]
 			else:
 				training_dict[index] = [fold, epoch_count+1, history.history['loss'][epoch_count], history.history['accuracy'][epoch_count], 
 										history.history['auc'][epoch_count], history.history['precision_'+str(fold-1)][epoch_count], 
-										history.history['recall_'+str(fold-1)][epoch_count]]
+										history.history['recall_'+str(fold-1)][epoch_count], history.history['val_loss'][epoch_count], 
+										history.history['val_accuracy'][epoch_count], history.history['val_recall_'+str(fold-1)][epoch_count],
+										history.history['val_precision_'+str(fold-1)][epoch_count], history.history['val_auc'][epoch_count]]
 		test_dict[fold] = model.evaluate(X_test, y_test, batch_size=32, workers=8, use_multiprocessing=True)
 		fold += 1
 	training_data = pd.DataFrame(training_dict).T
-	training_data.columns = ['Fold Number', 'Epoch', 'Binary Cross-Entropy Loss', 'Accuracy', 'AUC', 'Precision', 'Recall']
+	training_data.columns = ['Fold Number', 'Epoch', 'Binary Cross-Entropy Loss', 'Accuracy', 'AUC', 'Precision', 'Recall', 
+							 'Validation Loss', 'Validation Accuracy', 'Validation Recall', 'Validation Precision', 'Validation AUC']
 	test_data = pd.DataFrame(test_dict).T
 	test_data.columns = ['Binary Cross-Entropy Loss', 'Accuracy', 'AUC', 'Precision', 'Recall']
+
 	training_data.to_csv('../data/model_output/nn_training_data.csv')
 	test_data.to_csv('../data/model_output/nn_test_data.csv')
 
