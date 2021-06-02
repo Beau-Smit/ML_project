@@ -15,13 +15,15 @@ def main():
 	df = X.copy()
 	y, X = np.array(y), np.array(X)
 	for train_indices, test_indices in kf.split(X, y):
-		X_train = pd.DataFrame(StandardScaler().fit_transform(X[train_indices]))
+		train_scaler = StandardScaler().fit(X[train_indices])
+		X_train = pd.DataFrame(train_scaler.transform(X[train_indices]))
 		y_train = y[train_indices]
-		X_test  = pd.DataFrame(StandardScaler().fit_transform(X[test_indices]))
+		X_test  = pd.DataFrame(train_scaler.transform(X[test_indices]))
 		y_test  = y[test_indices]
 		lr = LogisticRegression(penalty='elasticnet', solver='saga', l1_ratio=0.5,
 								max_iter=1000, random_state=12, n_jobs=8).fit(X_train, y_train)
-		y_pred = lr.predict(X_test)
+		y_pred = lr.predict_proba(X_test)
+		y_pred = [1 if x[1] > 0.25 else 0 for x in y_pred]
 		coeffs[fold] = lr.coef_[0]
 		test_dict[fold] = [log_loss(y_test, y_pred), accuracy_score(y_test, y_pred), roc_auc_score(y_test, y_pred), 
 						   precision_score(y_test, y_pred), recall_score(y_test, y_pred)]

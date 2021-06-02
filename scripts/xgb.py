@@ -14,15 +14,17 @@ def main():
 	feature_importances = {}
 	fold = 0
 	for train_indices, test_indices in kf.split(X, y):
-		X_train = pd.DataFrame(StandardScaler().fit_transform(X[train_indices]))
+		train_scaler = StandardScaler().fit(X[train_indices])
+		X_train = pd.DataFrame(train_scaler.transform(X[train_indices]))
 		y_train = y[train_indices]
-		X_test  = pd.DataFrame(StandardScaler().fit_transform(X[test_indices]))
+		X_test  = pd.DataFrame(train_scaler.transform(X[test_indices]))
 		y_test  = y[test_indices]
 
-		xgb = XGBClassifier(n_estimators=50, eval_metric=['logloss'], n_jobs=8, 
+		xgb = XGBClassifier(n_estimators=100, eval_metric=['logloss'], n_jobs=8, 
 							random_state=12, booster='gbtree', use_label_encoder=False)
 		fitted_xgb = xgb.fit(X_train, y_train)
-		y_pred = fitted_xgb.predict(X_test)
+		y_pred = fitted_xgb.predict_proba(X_test)
+		y_pred = [1 if x[1] > 0.25 else 0 for x in y_pred]
 		test_dict[fold] = [log_loss(y_test, y_pred), accuracy_score(y_test, y_pred), roc_auc_score(y_test, y_pred), 
 						   precision_score(y_test, y_pred), recall_score(y_test, y_pred)]
 		feature_importances[fold] = fitted_xgb.feature_importances_
