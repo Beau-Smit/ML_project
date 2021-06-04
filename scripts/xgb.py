@@ -4,6 +4,8 @@ from xgboost import XGBClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import log_loss, accuracy_score, recall_score, precision_score, roc_auc_score
+from xgboost import plot_tree
+import matplotlib.pyplot as plt
 
 def main():
 	y, X = load_data()
@@ -24,11 +26,15 @@ def main():
 							random_state=12, booster='gbtree', use_label_encoder=False)
 		fitted_xgb = xgb.fit(X_train, y_train)
 		y_pred = fitted_xgb.predict_proba(X_test)
-		y_pred = [1 if x[1] > 0.25 else 0 for x in y_pred]
+		y_pred = [1 if x[1] > 0.04 else 0 for x in y_pred]
 		test_dict[fold] = [log_loss(y_test, y_pred), accuracy_score(y_test, y_pred), roc_auc_score(y_test, y_pred), 
 						   precision_score(y_test, y_pred), recall_score(y_test, y_pred)]
 		feature_importances[fold] = fitted_xgb.feature_importances_
-		fold += 1
+		fold += 1		
+		plot_tree(fitted_xgb, num_trees=5)
+		fig = plt.gcf()
+		fig.set_size_inches(150, 100)
+		fig.savefig('../img/tree_plots/tree_'+str(fold)+'.png')
 	test_df = pd.DataFrame(test_dict).T
 	test_df.columns = ['Binary Cross-Entropy Loss', 'Accuracy', 'AUC', 'Precision', 'Recall']
 	test_df.to_csv('../data/model_output/xgb_test_data.csv')

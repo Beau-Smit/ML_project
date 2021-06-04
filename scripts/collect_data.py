@@ -42,10 +42,6 @@ def pull_elevations(df, pull_trues, pull_falses):
 		with Pool(8) as p:
 			p.map(pull_elevations_helper, tups)
 		elev_files = [str(index_val)+'.tiff' for index_val in df.index.tolist()]
-		# for index_val in df.index.tolist():
-		# 	obs = df.loc[index_val]
-		# 	pull_elevations_helper(obs, index_val, false=False)
-		# 	elev_files.append(str(index_val)+'.tiff')
 		df['elev_files'] = elev_files
 		df.to_csv('nasa_global_landslide_catalog_point.csv')
 	if pull_falses:
@@ -62,23 +58,11 @@ def pull_elevations(df, pull_trues, pull_falses):
 		false_slide_pts = create_false_dates(false_slide_pts)
 		start_date = date.today().replace(day=1, month=1, year=2000).toordinal()
 		end_date = date.today().replace(day=31, month=12, year=2020).toordinal()
-		# dates = []
 		elev_files = []
-		# print(len(false_slide_pts.index))
-		# sys.exit()
 		tups = [(false_slide_pts.loc[index_val], index_val, True) for index_val in false_slide_pts.index.tolist()]
 		with Pool(8) as p:
 			p.map(pull_elevations_helper, tups)
 		elev_files = ['false_'+str(index_val)+'.tiff' for index_val in df.index.tolist()]
-
-		# for index_val in false_slide_pts.index.tolist():
-		# 	obs = false_slide_pts.loc[index_val]
-		# 	# the below is comedy
-		# 	pull_elevations_helper(obs, index_val, false=True)
-		# 	random_date = date.fromordinal(random.randint(start_date, end_date))
-		# 	print(type(random_date))
-		# 	elev_file = 'false_'+str(index_val)+'.tiff'
-		# 	elev_files.append(elev_file)
 		false_slide_pts['event_date'] = dates
 		false_slide_pts['elev_files'] = elev_files
 		false_slide_pts['Landslide Occurred'] = 0
