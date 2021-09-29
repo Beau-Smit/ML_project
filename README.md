@@ -1,4 +1,8 @@
-# ML_project
+# CAPP 30254 Final Project
+
+In this project, we used precipitation, wildfires, and elevation data to build a predictive model of landslides. You can see our results here:
+
+https://docs.google.com/document/d/1kXVJCe2uliU_Bewu8Odvw2bv6MTVoIt_HXTcB8zKWEk/edit?usp=sharing
 
 ### Data
 ##### Landslides 
